@@ -1,0 +1,126 @@
+---
+# Copyright 2019, 2020. IBM All Rights Reserved.
+# #
+# # Licensed under the Apache License, Version 2.0 (the "License");
+# # you may not use this file except in compliance with the License.
+# # You may obtain a copy of the License at
+# #
+# # https://www.apache.org/licenses/LICENSE-2.0
+# #
+# # Unless required by applicable law or agreed to in writing, software
+# # distributed under the License is distributed on an "AS IS" BASIS,
+# # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# # See the License for the specific language governing permissions and
+# # limitations under the License.
+# #
+
+
+- name: Use terraform to build out the infrastructure on IBM
+  hosts: localhost
+
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/opt/bin2"
+
+  vars_files:
+    - /home/sayan/infra-as-code/ansible-playbooks/repository/ibm-secrets.yml
+  
+  vars:
+    - min_ram_mb: 256
+
+  tasks:
+
+
+    - name: Execute terraform
+      terraform:
+        project_path: "./ibm-tf"
+        variables:
+          iaas_ibm_classic_user:  "{{ ibm_classic_user  }}"
+          iaas_ibm_classic_api_key: "{{ ibm_classic_api_key }}"
+          iaas_ibmcloud_api_key:  "{{ ibmcloud_api_key }}"
+          iaas_ibm_ssh_key: "{{ ibm_ssh_key }}"
+          private_key_path: "{{ private_key }}"
+        state:  present
+      register: host_ip
+
+    - name: Show Terraform output
+      debug:
+        var:  host_ip.outputs.public_ip.value
+
+    - name: Add server to IBM Servers group
+      add_host:
+#        name: "ec2_host"
+        hostname: "{{ host_ip.outputs.public_ip.value }}"
+        groups:   IBM_Servers
+#        host_ip: "{{ host_ip.outputs.public_ip.value }}"
+
+    - name: Save the host IP for use later in the playbook
+      set_fact:
+          ibm_host: "{{ host_ip.outputs.public_ip.value }}"
+
+
+- name: Install and start Apache Web Server
+  hosts: IBM_Servers
+#  hosts:  "{{ host_ip.outputs.public_ip.value }}"
+
+  vars:
+    packages:
+      - httpd
+      - firewalld
+
+  tasks:
+
+#    - name: Failed system requirements
+#      fail:
+#        msg: "Minimum system requirements not met for {{ inventory_hostname }}"
+#        when: >
+#          ansible_memtotal_mb < min_ram_mb or
+#          ansible_distribution != "RedHat"
+
+    - name: Packages are present
+      yum:
+        name: "{{ packages }}" 
+        state: present
+
+    - name: correct index.html is present
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+
+    - name: httpd is started
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: firewalld is started
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Update firewall rule(s)
+      firewalld:
+        service: http
+        immediate: true
+        permanent: true
+        state:  enabled
+
+- name: Test webserver connectivity
+  hosts: localhost
+  gather_facts: false
+  become: false
+  tasks:
+
+  - name: Check host name for URL
+    debug:
+      var: groups['IBM_Servers']
+        
+  - name: Connect to webserver
+    uri:
+#      url: "http://{{ inventory_hostname }}"
+#      url: "http://{{ groups['AWS_Servers'][0] }}"
+      url: "http://{{ item }}"
+      return_content: yes
+      status_code: 200
+    loop: "{{ groups['IBM_Servers'] }}"
+...        

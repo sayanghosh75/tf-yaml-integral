@@ -1,0 +1,5 @@
+credentials.tfvars
+*.pub
+.terraform
+.git.bak
+terraform.tfstate

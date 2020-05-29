@@ -1,0 +1,10 @@
+# use ansible-inventory -i <inventory file> for specific file
+
+[IBM_Servers]
+
+[AWS_Servers]
+
+#[Azure_Servers]
+
+#[GCP_Servers]
+
