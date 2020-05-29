@@ -25,6 +25,8 @@ ibm-secrets.yml: User names and API Keys for accessing IBM Cloud
 
 aws-secrets.yml: API Keys and Secrets for accessing AWS
 
+Uncomment the correct ssh user and key for IBM Cloud or AWS
+
 IMPORTANT: While the above files are provided as examples, it is essential to encrypt these files using 'ansible-vault'
 
 Execution:
