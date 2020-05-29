@@ -22,7 +22,7 @@
     PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
 
   vars_files:
-    - /home/sayan/infra-as-code/ansible-playbooks/repository/aws-secrets.yml
+    - aws-secrets.yml
   
   vars:
     - min_ram_mb: 256

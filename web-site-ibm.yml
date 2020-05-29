@@ -22,7 +22,7 @@
     PATH: "{{ ansible_env.PATH }}:/opt/bin2"
 
   vars_files:
-    - /home/sayan/infra-as-code/ansible-playbooks/repository/ibm-secrets.yml
+    - ibm-secrets.yml
   
   vars:
     - min_ram_mb: 256
