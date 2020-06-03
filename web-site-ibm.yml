@@ -59,7 +59,7 @@
 
 
 - name: Install and start Apache Web Server
-  hosts: IBM_Servers
+  hosts: IBM_Servers,!DummyHostIBM
 #  hosts:  "{{ host_ip.outputs.public_ip.value }}"
 
   vars:
