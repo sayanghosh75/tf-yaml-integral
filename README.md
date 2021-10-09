@@ -55,6 +55,7 @@ To destroy the provisioned environment, make changes to the script for your own 
 If you would like to see the detailed LICENSE click [here](LICENSE).
 
 - Author: Sayan A Ghosh <sghosh@sg.ibm.com>
+- Maintainer: Sayan A Ghosh <sayan.acharya.ghosh@kyndryl.com>
 
 ```text
 Copyright:: 2020-2020 IBM, Inc
